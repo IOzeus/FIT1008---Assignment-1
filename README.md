@@ -2,11 +2,7 @@
 
 Assignment members:
 
-* saksham.nagpal@monash.edu
-* alexey.ignatiev@monash.edu
-* brendon.taylor@monash.edu
-* jackson.goerner@monash.edu
-
+* aalk0011@student.monash.edu
 TODO:
 
 - [ ] Task 1
