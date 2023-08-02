@@ -24,6 +24,11 @@ class Stats(abc.ABC):
 class SimpleStats(Stats):
 
     def __init__(self, attack, defense, speed, max_hp) -> None:
+        attack = self.get_attack()
+        defense = self.get_defense()
+        speed = self.get_speed()
+        max_hp = self.get_max_hp()
+
         # TODO: Implement
         pass
 
