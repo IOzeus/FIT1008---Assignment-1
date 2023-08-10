@@ -54,6 +54,8 @@ class TestMonsters(TestCase):
         new_monster = t.evolve()
         self.assertIsInstance(new_monster, Ironclad)
         # Same difference.
+        print(new_monster.get_max_hp)
+        print(new_monster.get_hp())
         self.assertEqual(new_monster.get_max_hp() - new_monster.get_hp(), 3)
         self.assertEqual(str(new_monster), "LV.3 Ironclad, 14/17 HP")
 

@@ -24,20 +24,40 @@ class Stats(abc.ABC):
 class SimpleStats(Stats):
 
     def __init__(self, attack, defense, speed, max_hp) -> None:
+<<<<<<< Updated upstream
+        attack = self.get_attack()
+        defense = self.get_defense()
+        speed = self.get_speed()
+        max_hp = self.get_max_hp()
+
         # TODO: Implement
         pass
+=======
+        """attack, defense, speed, max_hp are passed in from helpers.py I think.
+        Initialising this class' variable i.e self.attack to the inputted variables
+        """
+
+        self.attack = attack
+        self.defense = defense
+        self.speed = speed
+        self.max_hp = max_hp
+>>>>>>> Stashed changes
 
     def get_attack(self):
-        raise NotImplementedError
+
+        return self.attack
+
 
     def get_defense(self):
-        raise NotImplementedError
+        return self.defense
+        
 
     def get_speed(self):
-        raise NotImplementedError
+        return self.speed
+    
 
     def get_max_hp(self):
-        raise NotImplementedError
+        return self.max_hp
 
 class ComplexStats(Stats):
 
@@ -62,3 +82,4 @@ class ComplexStats(Stats):
 
     def get_max_hp(self, level: int):
         raise NotImplementedError
+    
