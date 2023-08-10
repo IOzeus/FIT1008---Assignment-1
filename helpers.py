@@ -46,14 +46,14 @@ def _make_all_monster_classes():
             monster["element"],
             SimpleStats(simple["attack"], simple["defense"], simple["speed"], simple["max_hp"]),
             ComplexStats(
-                ArrayR.from_list(str(complex["attack"]).split()),
+                ArrayR.from_list(str(complex["attack"]).split()), ## why would you do this if .split already makes an array?
                 ArrayR.from_list(str(complex["defense"]).split()),
                 ArrayR.from_list(str(complex["speed"]).split()),
                 ArrayR.from_list(str(complex["max_hp"]).split()),
             ),
             monster.get("can_be_spawned", False)
         )
-        globals()[monster["name"]] = new_class
+        globals()[monster["name"]] = new_class ## whats this do (return dict? Looking like what, how can I see what it looks like)
         _monsters[idx] = new_class
         idx += 1
     # Now assign evolution

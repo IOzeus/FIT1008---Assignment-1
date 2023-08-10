@@ -2,6 +2,10 @@ from __future__ import annotations
 import abc
 
 from stats import Stats
+''' This is how to commment everything
+what the function does
+complexity of overall function 
+'''
 
 class MonsterBase(abc.ABC):
 
@@ -11,44 +15,84 @@ class MonsterBase(abc.ABC):
 
         :simple_mode: Whether to use the simple or complex stats of this monster
         :level: The starting level of this monster. Defaults to 1.
+        :self.max_hp: Max hp of monster (retrived from stats.py)
         """
-        raise NotImplementedError
+
+        #Stats of monster retrieved from stats.py
+        stats = self.get_simple_stats() #just naming a variable i.e self.stats to equal the function get_simple_stats() (which gets all the stats somehow from the stats file) so that I can access this function easier just by writing stats.whatever
+        self.__max_hp = stats.get_max_hp()
+        self.__defense = stats.get_defense()
+        self.__dmg = stats.get_attack()
+        self.__speed = stats.get_speed()
+
+        #Inputted values
+        self.__init_level = level
+        self.__current_level = level
+        self.__current_hp = self.__max_hp
+        self.__is_alive = True
+        
+        self.__eff_dmg = None
+        
 
     def get_level(self):
         """The current level of this monster instance"""
-        raise NotImplementedError
+        return self.__current_level
 
     def level_up(self):
         """Increase the level of this monster instance by 1"""
-        raise NotImplementedError
+        # if other monsters hp<=0 (hp is less than or equal to 0) i.e the variable 'other' obj hp stat is hp<=0 
+        # then if this is the case level up (update current_level using current_level+=current_level)
+        #return current_level
+
+        self.__current_level += 1
+        return self.__current_level 
 
     def get_hp(self):
         """Get the current HP of this monster instance"""
-        raise NotImplementedError
-
+        return self.__current_hp
+        
     def set_hp(self, val):
         """Set the current HP of this monster instance"""
-        raise NotImplementedError
+        if val > self.__max_hp:
+            diff =  val - self.__max_hp 
+
+            self.__current_hp = ((diff) + self.__current_hp)
+        
+        if val < self.__max_hp:
+            self.__current_hp = val
+
+        else:
+            self.__current_hp = val
+        
+
 
     def get_attack(self):
         """Get the attack of this monster instance"""
-        raise NotImplementedError
+        return self.__dmg
 
     def get_defense(self):
         """Get the defense of this monster instance"""
-        raise NotImplementedError
+        return self.__defense
 
     def get_speed(self):
         """Get the speed of this monster instance"""
-        raise NotImplementedError
+        return self.__speed
 
     def get_max_hp(self):
         """Get the maximum HP of this monster instance"""
-        raise NotImplementedError
+        return self.__max_hp
+
 
     def alive(self) -> bool:
         """Whether the current monster instance is alive (HP > 0 )"""
-        raise NotImplementedError
+        if (self.__current_hp <= 0):
+            self.__is_alive = False
+        else:
+            self.__is_alive = True
+
+        return self.__is_alive
+
+        
 
     def attack(self, other: MonsterBase):
         """Attack another monster instance"""
@@ -56,15 +100,49 @@ class MonsterBase(abc.ABC):
         # Step 2: Apply type effectiveness
         # Step 3: Ceil to int
         # Step 4: Lose HP
+
         raise NotImplementedError
 
     def ready_to_evolve(self) -> bool:
         """Whether this monster is ready to evolve. See assignment spec for specific logic."""
-        raise NotImplementedError
+        if self.get_evolution() == None:
+            return False
+        
+        if (self.__current_level > self.__init_level):
+            return True
+        
+        else:
+            return False
+    
+
 
     def evolve(self) -> MonsterBase:
         """Evolve this monster instance by returning a new instance of a monster class."""
-        raise NotImplementedError
+        
+        if (self.ready_to_evolve()):
+            #if (self.__current_level > self.__init_level):
+            evolve_cls = self.get_evolution()
+            evolved_monster_obj = evolve_cls.__new__(evolve_cls)
+            evolved_monster_obj.__init__(True,self.__current_level)
+
+            evolved_monster_obj.set_hp(evolved_monster_obj.__max_hp)
+
+            return evolved_monster_obj
+        else:
+            pass
+    
+    def __str__(self) -> str:
+        
+        if isinstance(self.__current_hp,float):
+            x = float.as_integer_ratio(self.__current_hp)
+            statement = f"LV.{self.__current_level} {self.get_name()}, {x[0]}/{x[1]} HP"
+            return statement
+        
+        else:
+            statement = f"LV.{self.__current_level} {self.get_name()}, {self.__current_hp}/{self.__max_hp} HP"
+            return statement
+
+        
 
     ### NOTE
     # Below is provided by the factory - classmethods

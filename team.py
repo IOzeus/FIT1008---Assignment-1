@@ -16,8 +16,12 @@ class MonsterTeam:
 
     class TeamMode(BaseEnum):
 
-        FRONT = auto()
+        FRONT = auto() 
+        '''In TeamMode.FRONT, when a monster is added to a team, it is always added to the front of the team array[0]. 
+        Note that this means it is this monster that will be next retrieved from the team again.'''
         BACK = auto()
+        '''In TeamMode.BACK, when a monster is added to a team, it is always added to the back of the team. 
+        Note that this means this monster will be the last to be retrieved from the team.'''
         OPTIMISE = auto()
 
     class SelectionMode(BaseEnum):
@@ -52,9 +56,21 @@ class MonsterTeam:
         raise NotImplementedError
 
     def retrieve_from_team(self) -> MonsterBase:
+        '''In a battle, monsters will be retrieved from the team and used in battle. 
+        If a monster is swapped out, then it is added back into the team.'''
         raise NotImplementedError
 
     def special(self) -> None:
+        '''For TeamMode.FRONT:When team.special is used, the first 3 monsters at the front are reversed 
+        (Up to the current capacity of the team) i.e array index 0,1,2 elements are reversed so these elements from these
+         index end up in this order 2,1,0 therefor saying array[0]=array[2], array[1]=array[1], array[2]=array[0]'''
+        
+        '''For TeamMode.BACK: When team.special is used, the first half of the team is swapped with the second half 
+        (in an odd team size, the middle monster is in the bottom half), and the original second half of the team is reversed.'''
+
+        '''For TeamMode.OPTIMISE: For example, if the initial stat was HP, then monsters would be inserted so that they are sorted by HP descending.
+        In the case of a draw in the statistic selected, you can order the monsters in either order. It does not matter.
+        When team.special is used, the sorting order toggles from descending to ascending (or vice-versa if used again).'''
         raise NotImplementedError
 
     def regenerate_team(self) -> None:

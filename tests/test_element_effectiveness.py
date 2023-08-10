@@ -16,3 +16,4 @@ class TestElementEffectiveness(TestCase):
         self.assertEqual(EffectivenessCalculator.get_effectiveness(Element.NORMAL, Element.GHOST), 0)
         self.assertEqual(EffectivenessCalculator.get_effectiveness(Element.DRAGON, Element.DRAGON), 2)
         self.assertEqual(EffectivenessCalculator.get_effectiveness(Element.WATER, Element.GRASS), 0.5)
+
