@@ -121,8 +121,8 @@ class MonsterBase(abc.ABC):
         
         if (self.ready_to_evolve()):
             #if (self.__current_level > self.__init_level):
-            evolve_cls = self.get_evolution()
-            evolved_monster_obj = evolve_cls.__new__(evolve_cls)
+            evolved_cls = self.get_evolution()
+            evolved_monster_obj = evolved_cls.__new__(evolved_cls)
             evolved_monster_obj.__init__(True,self.__current_level)
 
             evolved_monster_obj.set_hp(evolved_monster_obj.__max_hp)
