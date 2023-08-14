@@ -98,6 +98,75 @@ class MonsterTeam:
                 raise ValueError("Spawning logic failed.")
 
     def select_manually(self):
+
+        while True:
+            try:
+                team_size = int(input('How many monsters are there?: '))
+                team = ArrayR(team_size)
+                
+            except ValueError or team_size > 6:
+                print("Invalid input.")
+                #Try again... Return to the start of the loop
+                continue
+            else:
+                break
+        
+        for team_position in range(team_size):
+            try:
+                print('''MONSTERS Are:
+        1: Flamikin [✔️]
+        2: Infernoth [❌]
+        3: Infernox [❌]
+        4: Aquariuma [✔️]
+        5: Marititan [❌]
+        6: Leviatitan [❌]
+        7: Vineon [✔️]
+        8: Treetower [❌]
+        9: Treemendous [❌]
+        10: Rockodile [✔️]
+        11: Stonemountain [❌]
+        12: Gustwing [✔️]
+        13: Stormeagle [❌]
+        14: Frostbite [✔️]
+        15: Blizzarus [❌]
+        16: Thundrake [✔️]
+        17: Thunderdrake [❌]
+        18: Shadowcat [✔️]
+        19: Nightpanther [❌]
+        20: Mystifly [✔️]
+        21: Telekite [❌]
+        22: Metalhorn [✔️]
+        23: Ironclad [❌]
+        24: Normake [❌]
+        25: Strikeon [✔️]
+        26: Venomcoil [✔️]
+        27: Pythondra [✔️]
+        28: Constriclaw [✔️]
+        29: Shockserpent [✔️]
+        30: Driftsnake [✔️]
+        31: Aquanake [✔️]
+        32: Flameserpent [✔️]
+        33: Leafadder [✔️]
+        34: Iceviper [✔️]
+        35: Rockpython [✔️]
+        36: Soundcobra [✔️]
+        37: Psychosnake [✔️]
+        38: Groundviper [✔️]
+        39: Faeboa [✔️]
+        40: Bugrattler [✔️]
+        41: Darkadder [✔️]''')
+    
+                chosen_monster = int(input('Which monster are you spawning? (select integer): '))
+                monster = get_all_monsters()[chosen_monster]
+                
+                
+            except ValueError or chosen_monster > len(monsters) :
+                print("\nMonster not spawnable, re-enter selection")
+                #Try again... Return to the start of the loop
+                continue
+            else:
+                break
+
         """
         Prompt the user for input on selecting the team.
         Any invalid input should have the code prompt the user again.
