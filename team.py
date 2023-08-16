@@ -155,10 +155,11 @@ class MonsterTeam:
         39: Faeboa [✔️]
         40: Bugrattler [✔️]
         41: Darkadder [✔️]''')
+                
     
                 chosen_monster = int(input('Which monster are you spawning? (select integer): '))
-                monster = get_all_monsters()[chosen_monster]
-                
+                _monster = get_all_monsters()[chosen_monster]
+                return print(f'{_monster}')
                 
             except ValueError or chosen_monster > len(monsters) :
                 print("\nMonster not spawnable, re-enter selection")
@@ -296,11 +297,14 @@ class MonsterTeam:
         return Battle.Action.SWAP
 
 if __name__ == "__main__":
+    print("\nARE YOU WORKING\n")
     team = MonsterTeam(
         team_mode=MonsterTeam.TeamMode.OPTIMISE,
         selection_mode=MonsterTeam.SelectionMode.RANDOM,
         sort_key=MonsterTeam.SortMode.HP,
     )
+    print("\nARE YOU WORKING\n")
     print(team)
-    while len(team):
-        print(team.retrieve_from_team())
+    #while len(team):
+        #print(team.retrieve_from_team())
+    team.select_manually()
