@@ -41,8 +41,13 @@ class MonsterTeam:
     TEAM_LIMIT = 6
 
     def __init__(self, team_mode: TeamMode, selection_mode, **kwargs) -> None:
-        # Add any preinit logic here.
-        self.team_mode = team_mode
+
+        self.team_mode = team_mode #team mode selected: Front Back or Optimise
+        self.sort_mode = kwargs.get('sort_mode') #returns what value player chose to sort monsters with in array
+        self.team = ArrayR(6) 
+        '''create default array, although is there a better way? also am I 
+        creating too many arrays at difference spots in the code'''
+
         if selection_mode == self.SelectionMode.RANDOM:
             self.select_randomly(**kwargs)
         elif selection_mode == self.SelectionMode.MANUAL:
@@ -51,14 +56,47 @@ class MonsterTeam:
             self.select_provided(**kwargs)
         else:
             raise ValueError(f"selection_mode {selection_mode} not supported.")
-
+        
     def add_to_team(self, monster: MonsterBase):
-        raise NotImplementedError
+
+        #For Front team mode added to front of team, FILO
+        from data_structures.stack_adt import ArrayStack
+        if self.team_mode == self.TeamMode.FRONT: # if team mode is 'front' retrieves monster from array[0]
+            self.team = ArrayStack() # insert ArrayR into ArrayStack ADT so it gets it properties
+            self.team.push(monster) #add monster to top of stack
+            '''is this right? should i be inputting into stack self.team.team_size or nothing?'''
+
+        #For Back team mode added to the back of the team, FIFO
+        from data_structures.queue_adt import CircularQueue
+        if self.team_mode == self.TeamMode.BACK: #if team mode is 'back' retrieves monster from array[-1]
+            self.team = CircularQueue() # insert base ArrayR into CircularQueue ADT so it gets it properties
+            self.team.append(monster) #add monster to back of queue
+            '''is this right? should i be inputting into CircularQueue self.team.team_size or nothing?'''
+
+        #For Optimised team mode (sorted in picked order of the stat chosen: largest - lowest)
+        from data_structures.array_sorted_list import ArraySortedList
+        from data_structures.sorted_list_adt import SortedList, ListItem
+        if self.team_mode == self.TeamMode.OPTIMISE:
+            monster = ListItem(monster, self.sort_mode) #create key and value of the chosen monster class key to sort it sort_mode i.e hp,attack etc, value is the monster
+            self.team = ArraySortedList(self.team) # insert base ArrayR into Arraysortedlist ADT so it gets it properties
+            self.team.add(monster) #adds monster according to order it should be in
+            '''is this right? should I be inputting into Arraysortlist self.team.team_size or nothing?'''
 
     def retrieve_from_team(self) -> MonsterBase:
         '''In a battle, monsters will be retrieved from the team and used in battle. 
         If a monster is swapped out, then it is added back into the team.'''
-        raise NotImplementedError
+
+        #Retrives monster from front array[0] then deletes it from array
+        if self.team_mode == self.TeamMode.FRONT:
+            return self.team.pop()
+        
+        #Retrives monster from back array[-1] then deletes it from array
+        if self.team_mode == self.TeamMode.BACK:
+            return self.team.serve()
+        
+        if self.team_mode == self.TeamMode.OPTIMISE:
+            return self.team.__getitem__(0) 
+        '''gets item from from (IDK IF THIS IS CORRECT DOUBLE CHECK)'''
 
     def special(self) -> None:
         '''For TeamMode.FRONT:When team.special is used, the first 3 monsters at the front are reversed 
@@ -71,10 +109,12 @@ class MonsterTeam:
         '''For TeamMode.OPTIMISE: For example, if the initial stat was HP, then monsters would be inserted so that they are sorted by HP descending.
         In the case of a draw in the statistic selected, you can order the monsters in either order. It does not matter.
         When team.special is used, the sorting order toggles from descending to ascending (or vice-versa if used again).'''
-        raise NotImplementedError
+        pass
+        #raise NotImplementedError
 
     def regenerate_team(self) -> None:
-        raise NotImplementedError
+        pass
+        #raise NotImplementedError
 
     def select_randomly(self):
         team_size = RandomGen.randint(1, self.TEAM_LIMIT)
@@ -98,76 +138,41 @@ class MonsterTeam:
                 raise ValueError("Spawning logic failed.")
 
     def select_manually(self):
-
+        #pick team size if wrong input pull exception then continue
         while True:
             try:
                 team_size = int(input('How many monsters are there?: '))
-                team = ArrayR(team_size)
+                self.team = ArrayR(team_size)
                 
-            except ValueError or team_size > 6:
-                print("Invalid input.")
-                #Try again... Return to the start of the loop
+            except ValueError: #Try again... Return to the start of the loop
+                print("Invalid input, needs to be an integer. Reinput size.\n")
                 continue
             else:
-                break
-        
-        for team_position in range(team_size):
-            try:
-                print('''MONSTERS Are:
-        1: Flamikin [✔️]
-        2: Infernoth [❌]
-        3: Infernox [❌]
-        4: Aquariuma [✔️]
-        5: Marititan [❌]
-        6: Leviatitan [❌]
-        7: Vineon [✔️]
-        8: Treetower [❌]
-        9: Treemendous [❌]
-        10: Rockodile [✔️]
-        11: Stonemountain [❌]
-        12: Gustwing [✔️]
-        13: Stormeagle [❌]
-        14: Frostbite [✔️]
-        15: Blizzarus [❌]
-        16: Thundrake [✔️]
-        17: Thunderdrake [❌]
-        18: Shadowcat [✔️]
-        19: Nightpanther [❌]
-        20: Mystifly [✔️]
-        21: Telekite [❌]
-        22: Metalhorn [✔️]
-        23: Ironclad [❌]
-        24: Normake [❌]
-        25: Strikeon [✔️]
-        26: Venomcoil [✔️]
-        27: Pythondra [✔️]
-        28: Constriclaw [✔️]
-        29: Shockserpent [✔️]
-        30: Driftsnake [✔️]
-        31: Aquanake [✔️]
-        32: Flameserpent [✔️]
-        33: Leafadder [✔️]
-        34: Iceviper [✔️]
-        35: Rockpython [✔️]
-        36: Soundcobra [✔️]
-        37: Psychosnake [✔️]
-        38: Groundviper [✔️]
-        39: Faeboa [✔️]
-        40: Bugrattler [✔️]
-        41: Darkadder [✔️]''')
-                
-    
-                chosen_monster = int(input('Which monster are you spawning? (select integer): '))
-                _monster = get_all_monsters()[chosen_monster]
-                return print(f'{_monster}')
-                
-            except ValueError or chosen_monster > len(monsters) :
-                print("\nMonster not spawnable, re-enter selection")
-                #Try again... Return to the start of the loop
-                continue
-            else:
+                if (team_size<1) or (team_size>6):
+                    print("Invalid input, team size needs to be between or including sizes 1 to 6. Reinput size.\n")
+                    continue
                 break
 
+        print("Spawnable monsters are: \n")
+        monster_list = get_all_monsters()
+        for i, cls_monster in enumerate(monster_list, start= 1): #print spawnable monster classes with corresponding index (i)
+                    if cls_monster.can_be_spawned():
+                         print(f"{i}: {cls_monster.get_name()}\n")
+                    else:
+                        continue
+
+        for j in range(team_size): # iterate as many as team size, choose monsters you want in team
+                
+                chosen_monster = int(input('Which monster are you spawning? (select integer): '))
+
+                while not monster_list[chosen_monster-1].can_be_spawned(): #if selected monster isn't spawnable get them to select again (iterates until spawnable monster)
+                    print ("You can't spawn that monster\n")
+                    chosen_monster = int(input('Which monster are you spawning? (select integer): '))
+
+                self.add_to_team(monster_list[chosen_monster-1]) #add chosen monster to team
+
+                print(f"You added {monster_list[chosen_monster-1].get_name()} to the team. Here's your line up right now: {print(self)} ") #show them the team now
+        return team
         """
         Prompt the user for input on selecting the team.
         Any invalid input should have the code prompt the user again.
@@ -272,7 +277,6 @@ class MonsterTeam:
         This monster cannot be spawned.
         Which monster are you spawning? 1
         """
-        raise NotImplementedError
 
     def select_provided(self, provided_monsters:Optional[ArrayR[type[MonsterBase]]]=None):
         """
@@ -287,7 +291,8 @@ class MonsterTeam:
         Example team if in TeamMode.FRONT:
         [Gustwing Instance, Aquariuma Instance, Flamikin Instance]
         """
-        raise NotImplementedError
+        pass
+        #raise NotImplementedError
 
     def choose_action(self, currently_out: MonsterBase, enemy: MonsterBase) -> Battle.Action:
         # This is just a placeholder function that doesn't matter much for testing.
@@ -298,13 +303,17 @@ class MonsterTeam:
 
 if __name__ == "__main__":
     print("\nARE YOU WORKING\n")
-    team = MonsterTeam(
+    '''team = MonsterTeam(
         team_mode=MonsterTeam.TeamMode.OPTIMISE,
         selection_mode=MonsterTeam.SelectionMode.RANDOM,
         sort_key=MonsterTeam.SortMode.HP,
+    )'''
+    team = MonsterTeam(
+        team_mode=MonsterTeam.TeamMode.OPTIMISE,
+        selection_mode=MonsterTeam.SelectionMode.RANDOM,
     )
     print("\nARE YOU WORKING\n")
-    print(team)
+    team.select_manually()
     #while len(team):
         #print(team.retrieve_from_team())
-    team.select_manually()
+    
