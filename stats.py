@@ -24,7 +24,6 @@ class Stats(abc.ABC):
 class SimpleStats(Stats):
 
     def __init__(self, attack, defense, speed, max_hp) -> None:
-
         """attack, defense, speed, max_hp are passed in from helpers.py I think.
         Initialising this class' variable i.e self.attack to the inputted variables
         """
@@ -34,7 +33,6 @@ class SimpleStats(Stats):
         self.max_hp = max_hp
 
     def get_attack(self):
-
         return self.attack
 
 
