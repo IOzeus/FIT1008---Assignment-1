@@ -132,15 +132,6 @@ class MonsterBase(abc.ABC):
             pass
     
     def __str__(self) -> str:
-        
-        if isinstance(self.__current_hp,float):
-            x = float.as_integer_ratio(self.__current_hp)
-            statement = f"LV.{self.__current_level} {self.get_name()}, {x[0]}/{x[1]} HP"
-            return statement
-        
-        else:
-            statement = f"LV.{self.__current_level} {self.get_name()}, {self.__current_hp}/{self.__max_hp} HP"
-            return statement
 
         
 
