@@ -132,6 +132,7 @@ class MonsterBase(abc.ABC):
             pass
     
     def __str__(self) -> str:
+            return f"LV.{self.get_level()} {self.get_name()}, {self.get_hp()}/{self.get_max_hp()} HP"
 
         
 
