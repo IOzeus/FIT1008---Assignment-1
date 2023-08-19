@@ -100,7 +100,7 @@ class EffectivenessCalculator:
 
         type1 = type1.name.lower() #turn first element string to lower case
         type2 = type2.name.lower() #turn second element string to lower case
-        elements_lowercase_array = [elements.lower() for elements in elements] #Create array of element headers all in lowercase
+        elements_lowercase_array = [elem.lower() for elem in elements] #Create array of element headers all in lowercase
 
         if type1 in elements_lowercase_array: #check if the first element exists in the new lowercase array ex. water == water? 
                 index_type1 = elements_lowercase_array.index(type1) #get index value of the first element
@@ -149,3 +149,5 @@ EffectivenessCalculator.make_singleton()
 
 if __name__ == "__main__":
     print(EffectivenessCalculator.get_effectiveness(Element.FIRE, Element.WATER))
+    print(EffectivenessCalculator.instance.elements)
+    print(EffectivenessCalculator.instance.effectiveness)

@@ -28,7 +28,7 @@ class MonsterBase(abc.ABC):
         #Inputted values
         self.__init_level = level
         self.__current_level = level
-        self.__current_hp = self.__max_hp
+        self.__current_hp = self.get_max_hp()
         self.__is_alive = True
         
         self.__eff_dmg = None
@@ -43,26 +43,30 @@ class MonsterBase(abc.ABC):
         # if other monsters hp<=0 (hp is less than or equal to 0) i.e the variable 'other' obj hp stat is hp<=0 
         # then if this is the case level up (update current_level using current_level+=current_level)
         #return current_level
-
+        old_max_hp = self.get_max_hp()
         self.__current_level += 1
-        return self.__current_level 
+        self.set_hp( self.get_max_hp() - (old_max_hp - self.get_hp()) )
+        return self.__current_level
 
     def get_hp(self):
         """Get the current HP of this monster instance"""
+
         return self.__current_hp
         
     def set_hp(self, val):
         """Set the current HP of this monster instance"""
-        if val > self.__max_hp:
-            diff =  val - self.__max_hp 
+        if val < 0:
+            raise ValueError("HP cannot be negative")
 
-            self.__current_hp = ((diff) + self.__current_hp)
-        
-        if val < self.__max_hp:
-            self.__current_hp = val
+        if val > self.__max_hp: 
+            hp_increase = val - self.__max_hp
+            self.__current_hp = self.__max_hp
+            self.__max_hp = val  # Update max HP
 
         else:
             self.__current_hp = val
+        
+                
         
 
 
@@ -121,11 +125,14 @@ class MonsterBase(abc.ABC):
         
         if (self.ready_to_evolve()):
             #if (self.__current_level > self.__init_level):
-            evolve_cls = self.get_evolution()
-            evolved_monster_obj = evolve_cls.__new__(evolve_cls)
+            evolved_cls = self.get_evolution()
+            evolved_monster_obj = evolved_cls.__new__(evolved_cls)
             evolved_monster_obj.__init__(True,self.__current_level)
-
-            evolved_monster_obj.set_hp(evolved_monster_obj.__max_hp)
+            #val = evolved_monster_obj.__max_hp - self.__max_hp
+             
+            hp_increase = evolved_monster_obj.get_max_hp() - self.__max_hp
+            new_current_hp = self.__current_hp + hp_increase
+            evolved_monster_obj.set_hp(new_current_hp)
 
             return evolved_monster_obj
         else:

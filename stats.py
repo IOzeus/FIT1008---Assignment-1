@@ -27,7 +27,6 @@ class SimpleStats(Stats):
         """attack, defense, speed, max_hp are passed in from helpers.py I think.
         Initialising this class' variable i.e self.attack to the inputted variables
         """
-
         self.attack = attack
         self.defense = defense
         self.speed = speed

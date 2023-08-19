@@ -49,13 +49,15 @@ class TestMonsters(TestCase):
         t.level_up()
         self.assertEqual(t.ready_to_evolve(), True)
         # Loses 3 hp.
+        print('\n(before -3) CURRENT HP OF MONSTER::: {}\n'.format(t.get_hp()))
         t.set_hp(t.get_hp() - 3)
+        print('\n(before evolved after -3) CURRENT HP OF MONSTER::: {}\n'.format(t.get_hp()))
         self.assertEqual(str(t), "LV.3 Metalhorn, 10/13 HP")
         new_monster = t.evolve()
         self.assertIsInstance(new_monster, Ironclad)
         # Same difference.
-        print(new_monster.get_max_hp)
-        print(new_monster.get_hp())
+        print('\nMAX HP OF MONSTER::: {}\n'.format(new_monster.get_max_hp()))
+        print('\nCURRENT HP OF MONSTER::: {}\n'.format(new_monster.get_hp()))
         self.assertEqual(new_monster.get_max_hp() - new_monster.get_hp(), 3)
         self.assertEqual(str(new_monster), "LV.3 Ironclad, 14/17 HP")
 
@@ -67,10 +69,15 @@ class TestMonsters(TestCase):
             def get_max_hp(self):
                 return 4 * self.get_level() + 2
         t:MonsterBase = MockedMetalhorn(simple_mode=True, level=2)
+        print('\nnewMAX HP OF MONSTER::: {}\n'.format(t.get_max_hp()))
         self.assertEqual(t.get_max_hp(), 10)
+        print('\nnewCURRENT HP OF MONSTER::: {}\n'.format(t.get_hp()))
         self.assertEqual(t.get_hp(), 10)
         t.set_hp(8)
+        print('\nafter (sethp=8) CURRENT HP OF MONSTER::: {}\n'.format(t.get_hp()))
         t.level_up()
+        print('\n(after lvl up) Max HP OF MONSTER::: {}\n'.format(t.get_max_hp()))
         self.assertEqual(t.get_max_hp(), 14)
+        print('\nnewCURRENT HP OF MONSTER::: {}\n'.format(t.get_hp()))
         self.assertEqual(t.get_hp(), 12)
 
