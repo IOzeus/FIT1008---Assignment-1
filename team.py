@@ -49,6 +49,7 @@ class MonsterTeam:
         self.team_mode = team_mode #team mode selected: Front Back or Optimise
         '''create default array, although is there a better way? also am I 
         creating too many arrays at difference spots in the code'''
+        self.clone_team = CircularQueue(self.TEAM_LIMIT)
 
         if self.team_mode == self.TeamMode.FRONT:
             self.team = ArrayStack(self.TEAM_LIMIT) #just make it the max size because they might wanna change it
@@ -57,7 +58,6 @@ class MonsterTeam:
         elif self.team_mode == self.TeamMode.OPTIMISE:
             self.team = ArraySortedList(self.TEAM_LIMIT)
             self.sort_mode = kwargs.get('sort_mode') #returns what value player chose to sort monsters with in array
-            
         else:
             raise ValueError(f"team_mode {team_mode} not supported.")
 
@@ -70,6 +70,11 @@ class MonsterTeam:
         else:
             raise ValueError(f"selection_mode {selection_mode} not supported.")
         
+    def __str__(self) -> str: 
+        for monster in self.team: #loops through current team array
+            name_of_monster = monster.get_name() #gets name of monster
+            team_lineUp += name_of_monster+"," #adds name of monsters to a variable, creating one big string w all monster names
+        return f"You're team line up is [{team_lineUp}]"
 
     def __sorting_key(self, monster: MonsterBase, sort_mode: SortMode): #MAKE function for if sort_mode return mosnter hp or attack or etc
         '''quick helper method for getting the monsters stat we're sorting the monsters in the array by'''
@@ -85,19 +90,25 @@ class MonsterTeam:
             return monster.get_level()
 
     def add_to_team(self, monster: MonsterBase):
-
+        ''':monster: monster class to add to team
+        Adds desired monster class to team ADT'''
+        if not self.team.is_full():
         #For Front team mode added to front of team, FILO
-        if self.team_mode == self.TeamMode.FRONT: # if team mode is 'front' retrieves monster from array[0]
-            self.team.push(monster) #add monster to top of stack
-        
-        #For Back team mode added to the back of the team, FIFO
-        if self.team_mode == self.TeamMode.BACK: #if team mode is 'back' retrieves monster from array[-1]
-            self.team.append(monster) #add monster to back of queue
+            if self.team_mode == self.TeamMode.FRONT: # if team mode is 'front' adds monster to array[0]
+                self.team.push(monster) #add monster to top of stack
+            #For Back team mode added to the back of the team, FIFO
+            if self.team_mode == self.TeamMode.BACK: #if team mode is 'back' adds monster to array[-1]
+                self.team.append(monster) #add monster to back of queue
+            #For Optimised team mode (sorted in picked order of the monster stat chosen: largest - lowest)
+            if self.team_mode == self.TeamMode.OPTIMISE:
+                monster = ListItem(monster, self.__sorting_key(monster, self.sort_mode)) #create key and value of the chosen monster class key to sort it sort_key i.e hp,attack etc, value is the monster
+                self.team.add(monster) #adds monster according to order it should be in
+        else:
+            Exception("Team is full can't add monsters")
 
-        #For Optimised team mode (sorted in picked order of the monster stat chosen: largest - lowest)
-        if self.team_mode == self.TeamMode.OPTIMISE:
-            monster = ListItem(monster, self.__sorting_key()) #create key and value of the chosen monster class key to sort it sort_key i.e hp,attack etc, value is the monster
-            self.team.add(monster) #adds monster according to order it should be in
+    def __initial_team (self, monster: MonsterBase):
+        '''helper function to just run on initialisation to clone the orginal team'''
+        self.clone_team.append(monster) #add monsters to clone team
 
     def retrieve_from_team(self) -> MonsterBase:
         '''In a battle, monsters will be retrieved from the team and used in battle. 
@@ -111,6 +122,7 @@ class MonsterTeam:
         elif self.team_mode == self.TeamMode.BACK:
             return self.team.serve()
         
+        #Retrives monster from back array[-1] then deletes it from array
         elif self.team_mode == self.TeamMode.OPTIMISE:
             return self.team[0] 
         '''gets item from from (IDK IF THIS IS CORRECT DOUBLE CHECK)'''
@@ -126,23 +138,63 @@ class MonsterTeam:
         '''For TeamMode.OPTIMISE: For example, if the initial stat was HP, then monsters would be inserted so that they are sorted by HP descending.
         In the case of a draw in the statistic selected, you can order the monsters in either order. It does not matter.
         When team.special is used, the sorting order toggles from descending to ascending (or vice-versa if used again).'''
-        pass
-        #raise NotImplementedError
+        #reverse organisations of monsters in team for team_mode Front
+        if self.team_mode == MonsterTeam.TeamMode.FRONT:
+            temp = CircularQueue(len(self.team)) 
+            '''it doesn't override the team objects because I'm not playing with objects but resetting the assignment of the variable with name 'temp' whole variable'''
+
+            for _ in range(len(self.team)):
+                temp.append(self.team.pop())
+            self.team = temp
+
+        #for team_mode back
+        elif self.team_mode == MonsterTeam.TeamMode.BACK:
+            
+            #find sizes of the halfs
+            size_firstHalf = len(self.team)//2 #floor division
+            size_lastHalf= len(self.team) - size_firstHalf 
+
+            #create temp arrays of both halfs
+            firstTeam_adt = CircularQueue(size_firstHalf)
+            lastTeam_adt = ArrayStack(size_lastHalf) #second half array
+            
+            for _ in range(size_firstHalf): #take the front half from original array and move them to first team array (keeping the order)
+                firstTeam_adt.append(self.team.serve())
+
+            for _ in range(size_lastHalf): #take the last half from original array and move them to last (second) half team array (keeping the order)
+                lastTeam_adt.push(self.team.serve())
+
+            for _ in range(size_lastHalf): #take the second half and put it back into team array reversed
+                self.team.append(lastTeam_adt.pop())
+
+            for _ in range(size_firstHalf): #take the first half and put it back into team array keeping its order
+                self.team.append(firstTeam_adt.serve())
 
     def regenerate_team(self) -> None:
  # store a variable of the team array after its made called it stored_team, but note when stats n shit changes in the original
  # team array it will change the same object in the other array, (the way python works) but if you retrieve from the orginal team array
  # it won't retrieve it from the store_team array variable 
  # for loop cant for loop through these adts of self.team because they made it not iterable, can enumerate but need a magic method called yield or something in the adt implementation for it
-        for monster in self.team:
+        
+        for _ in range(len(self.team)): # just removes all monster objects in current team array
             if self.team_mode == self.TeamMode.FRONT:
-                monster.set_hp(monster.get_max_hp()) #theres more to it build on this tho 
+                self.team.pop()
+
             elif self.team_mode == self.TeamMode.BACK:
-                monster.set_hp(monster.get_max_hp())
+                self.team.serve()
+
             elif self.team_mode == self.TeamMode.OPTIMISE:
-                monster.set_hp(monster.get_max_hp())    
-        pass
-        #raise NotImplementedError
+                self.team[0]
+
+        for monster in range(len(self.clone_team)):  #adds all monsters put in clone array at initialisation into the now empty team array
+            if self.team_mode == self.TeamMode.FRONT:
+                self.team.push(self.clone_team.serve())
+
+            elif self.team_mode == self.TeamMode.BACK:
+                self.team.append(self.clone_team.serve())
+
+            elif self.team_mode == self.TeamMode.OPTIMISE:
+                self.team.add(self.clone_team.serve())
 
     def select_randomly(self):
         team_size = RandomGen.randint(1, self.TEAM_LIMIT)
@@ -161,6 +213,7 @@ class MonsterTeam:
                     if cur_index == spawner_index:
                         # Spawn this monster
                         self.add_to_team(monsters[x]())
+                        self.__initial_team(monsters[x]())
                         break
             else:
                 raise ValueError("Spawning logic failed.")
@@ -198,114 +251,11 @@ class MonsterTeam:
                     chosen_monster = int(input('Which monster are you spawning? (select integer): '))
 
                 self.add_to_team(monster_list[chosen_monster-1]) #add chosen monster to team
-
+                self.__initial_team(monster_list[chosen_monster-1])
+                
                 print(f"You added {monster_list[chosen_monster-1].get_name()} to the team. Here's your line up right now: {print(self)} ") #show them the team now
         return self.team
-        """
-        Prompt the user for input on selecting the team.
-        Any invalid input should have the code prompt the user again.
-
-        First input: Team size. Single integer
-        For _ in range(team size):
-            Next input: Prompt selection of a Monster class.
-                * Should take a single input, asking for an integer.
-                    This integer corresponds to an index (1-indexed) of the helpers method
-                    get_all_monsters()
-                * If invalid of monster is not spawnable, should ask again.
-
-        Add these monsters to the team in the same order input was provided. Example interaction:
-
-        How many monsters are there? 2
-        MONSTERS Are:
-        1: Flamikin [✔️]
-        2: Infernoth [❌]
-        3: Infernox [❌]
-        4: Aquariuma [✔️]
-        5: Marititan [❌]
-        6: Leviatitan [❌]
-        7: Vineon [✔️]
-        8: Treetower [❌]
-        9: Treemendous [❌]
-        10: Rockodile [✔️]
-        11: Stonemountain [❌]
-        12: Gustwing [✔️]
-        13: Stormeagle [❌]
-        14: Frostbite [✔️]
-        15: Blizzarus [❌]
-        16: Thundrake [✔️]
-        17: Thunderdrake [❌]
-        18: Shadowcat [✔️]
-        19: Nightpanther [❌]
-        20: Mystifly [✔️]
-        21: Telekite [❌]
-        22: Metalhorn [✔️]
-        23: Ironclad [❌]
-        24: Normake [❌]
-        25: Strikeon [✔️]
-        26: Venomcoil [✔️]
-        27: Pythondra [✔️]
-        28: Constriclaw [✔️]
-        29: Shockserpent [✔️]
-        30: Driftsnake [✔️]
-        31: Aquanake [✔️]
-        32: Flameserpent [✔️]
-        33: Leafadder [✔️]
-        34: Iceviper [✔️]
-        35: Rockpython [✔️]
-        36: Soundcobra [✔️]
-        37: Psychosnake [✔️]
-        38: Groundviper [✔️]
-        39: Faeboa [✔️]
-        40: Bugrattler [✔️]
-        41: Darkadder [✔️]
-        Which monster are you spawning? 38
-        MONSTERS Are:
-        1: Flamikin [✔️]
-        2: Infernoth [❌]
-        3: Infernox [❌]
-        4: Aquariuma [✔️]
-        5: Marititan [❌]
-        6: Leviatitan [❌]
-        7: Vineon [✔️]
-        8: Treetower [❌]
-        9: Treemendous [❌]
-        10: Rockodile [✔️]
-        11: Stonemountain [❌]
-        12: Gustwing [✔️]
-        13: Stormeagle [❌]
-        14: Frostbite [✔️]
-        15: Blizzarus [❌]
-        16: Thundrake [✔️]
-        17: Thunderdrake [❌]
-        18: Shadowcat [✔️]
-        19: Nightpanther [❌]
-        20: Mystifly [✔️]
-        21: Telekite [❌]
-        22: Metalhorn [✔️]
-        23: Ironclad [❌]
-        24: Normake [❌]
-        25: Strikeon [✔️]
-        26: Venomcoil [✔️]
-        27: Pythondra [✔️]
-        28: Constriclaw [✔️]
-        29: Shockserpent [✔️]
-        30: Driftsnake [✔️]
-        31: Aquanake [✔️]
-        32: Flameserpent [✔️]
-        33: Leafadder [✔️]
-        34: Iceviper [✔️]
-        35: Rockpython [✔️]
-        36: Soundcobra [✔️]
-        37: Psychosnake [✔️]
-        38: Groundviper [✔️]
-        39: Faeboa [✔️]
-        40: Bugrattler [✔️]
-        41: Darkadder [✔️]
-        Which monster are you spawning? 2
-        This monster cannot be spawned.
-        Which monster are you spawning? 1
-        """
-
+    
     def select_provided(self, provided_monsters:Optional[ArrayR[type[MonsterBase]]]=None, **kwargs):
         """
         Generates a team based on a list of already provided monster classes.
@@ -319,8 +269,16 @@ class MonsterTeam:
         Example team if in TeamMode.FRONT:
         [Gustwing Instance, Aquariuma Instance, Flamikin Instance]
         """
-        pass
-        #raise NotImplementedError
+        if len(provided_monsters) < 6 and len(provided_monsters) > 0 : #Check no. of monsters added are below 6 and above 0
+            for monster in provided_monsters: #loop through provided monsters
+                
+                if self.team.is_full():
+                    raise Exception(f"Team is Full: {monster.get_name()} couldn't be added to the team because team is now full")
+                elif monster.can_be_spawned():
+                    self.add_to_team(monster) #add each monster into array (according to team_mode which is builtin to add_to_team)
+                    self.__initial_team(monster)
+        else: #if length of monsters provided were bigger than 6 or less than 1 then Exception
+            raise ValueError('Either you have too many monsters - you can only have a max of 6 in a team or,\nYou have no monsters or,\n team is full')
 
     def choose_action(self, currently_out: MonsterBase, enemy: MonsterBase) -> Battle.Action:
         # This is just a placeholder function that doesn't matter much for testing.

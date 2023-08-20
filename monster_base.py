@@ -30,7 +30,6 @@ class MonsterBase(abc.ABC):
         self.__current_level = level
         self.__current_hp = self.get_max_hp()
         self.__is_alive = True
-        
         self.__eff_dmg = None
         
 
@@ -50,7 +49,6 @@ class MonsterBase(abc.ABC):
 
     def get_hp(self):
         """Get the current HP of this monster instance"""
-
         return self.__current_hp
         
     def set_hp(self, val):
@@ -66,10 +64,6 @@ class MonsterBase(abc.ABC):
         else:
             self.__current_hp = val
         
-                
-        
-
-
     def get_attack(self):
         """Get the attack of this monster instance"""
         return self.__dmg
@@ -133,15 +127,12 @@ class MonsterBase(abc.ABC):
             hp_increase = evolved_monster_obj.get_max_hp() - self.__max_hp
             new_current_hp = self.__current_hp + hp_increase
             evolved_monster_obj.set_hp(new_current_hp)
-
             return evolved_monster_obj
         else:
             pass
     
     def __str__(self) -> str:
             return f"LV.{self.get_level()} {self.get_name()}, {self.get_hp()}/{self.get_max_hp()} HP"
-
-        
 
     ### NOTE
     # Below is provided by the factory - classmethods
