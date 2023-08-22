@@ -78,9 +78,9 @@ class TestTeam(TestCase):
         )
         flamikin = team.retrieve_from_team()
         aquariuma = team.retrieve_from_team()
-        #self.assertIsInstance(flamikin, tester)
-        #self.assertIsInstance(flamikin, Flamikin)
-        #self.assertIsInstance(aquariuma, Aquariuma)
+        # self.assertIsInstance(flamikin, tester)
+        self.assertIsInstance(flamikin, Flamikin)
+        self.assertIsInstance(aquariuma, Aquariuma)
         team.add_to_team(aquariuma)
         team.add_to_team(flamikin)
         vineon = team.retrieve_from_team()
@@ -139,10 +139,15 @@ class TestTeam(TestCase):
             sort_key=MonsterTeam.SortMode.HP,
             provided_monsters=my_monsters,
         )
-        # Rockodile, Aquariuma, Flamikin, Thundrake
+
+        print('Are YOU WORKING')
+        print(team.team)
+        
+        Rockodile, Aquariuma, Flamikin, Thundrake
         rockodile = team.retrieve_from_team()
         aquariuma = team.retrieve_from_team()
         flamikin = team.retrieve_from_team()
+
         self.assertIsInstance(rockodile, Rockodile)
         self.assertIsInstance(aquariuma, Aquariuma)
         self.assertIsInstance(flamikin, Flamikin)

@@ -57,7 +57,8 @@ class MonsterTeam:
             self.team = CircularQueue(self.TEAM_LIMIT) 
         elif self.team_mode == self.TeamMode.OPTIMISE:
             self.team = ArraySortedList(self.TEAM_LIMIT)
-            self.sort_mode = kwargs.get('sort_mode') #returns what value player chose to sort monsters with in array
+            self.sort_mode = kwargs.get('sort_key') #returns what value player chose to sort monsters with in array
+            self.ascending = False
         else:
             raise ValueError(f"team_mode {team_mode} not supported.")
 
@@ -70,11 +71,21 @@ class MonsterTeam:
         else:
             raise ValueError(f"selection_mode {selection_mode} not supported.")
         
-    def __str__(self) -> str: 
-        for monster in self.team: #loops through current team array
-            name_of_monster = monster.get_name() #gets name of monster
-            team_lineUp += name_of_monster+"," #adds name of monsters to a variable, creating one big string w all monster names
-        return f"You're team line up is [{team_lineUp}]"
+    # def __str__(self) -> str: 
+    #     team_lineUp = ""
+    #     if self.team_mode == self.TeamMode.OPTIMISE:
+    #         for monster in self.team: #loops through current team array
+    #             name_of_monster = monster.value #gets name of monster
+    #             team_lineUp += f'{name_of_monster},' #adds name of monsters to a variable, creating one big string w all monster names
+
+    #         return f"You're team line up is [{team_lineUp}]"
+        
+    #     else:
+    #         for monster in self.team: #loops through current team array
+    #             name_of_monster = monster.get_name() #gets name of monster
+    #             team_lineUp += f'{name_of_monster},' #adds name of monsters to a variable, creating one big string w all monster names
+
+    #         return f"You're team line up is [{team_lineUp}]"
 
     def __sorting_key(self, monster: MonsterBase, sort_mode: SortMode): #MAKE function for if sort_mode return mosnter hp or attack or etc
         '''quick helper method for getting the monsters stat we're sorting the monsters in the array by'''
@@ -124,7 +135,9 @@ class MonsterTeam:
         
         #Retrives monster from back array[-1] then deletes it from array
         elif self.team_mode == self.TeamMode.OPTIMISE:
-            return self.team[0] 
+
+            return self.team.delete_at_index(0).value
+
         '''gets item from from (IDK IF THIS IS CORRECT DOUBLE CHECK)'''
 
     def special(self) -> None:
@@ -143,9 +156,11 @@ class MonsterTeam:
             temp = CircularQueue(len(self.team)) 
             '''it doesn't override the team objects because I'm not playing with objects but resetting the assignment of the variable with name 'temp' whole variable'''
 
-            for _ in range(len(self.team)):
+            for _ in range(min(3,len(self.team))):
                 temp.append(self.team.pop())
-            self.team = temp
+            
+            for _ in range(len(temp)):
+                self.team.push(temp.serve())
 
         #for team_mode back
         elif self.team_mode == MonsterTeam.TeamMode.BACK:
@@ -169,6 +184,19 @@ class MonsterTeam:
 
             for _ in range(size_firstHalf): #take the first half and put it back into team array keeping its order
                 self.team.append(firstTeam_adt.serve())
+        
+        
+        # elif self.team_mode == self.TeamMode.OPTIMISE:
+        #     reversed_team = ArrayR(len(self.team))
+        #     for i in range(len(self.team)):
+        #         self.team[i] = reversed_team[len(self.team) - i - 1]
+        elif self.team_mode == MonsterTeam.TeamMode.OPTIMISE:
+            self.ascending = not self.ascending
+            for _ in range(len(self.team)): 
+                self.team.add(ListItem(monster, self.mapping(monster, self.sort_mode)))
+
+
+        
 
     def regenerate_team(self) -> None:
  # store a variable of the team array after its made called it stored_team, but note when stats n shit changes in the original
@@ -275,10 +303,10 @@ class MonsterTeam:
                 if self.team.is_full():
                     raise Exception(f"Team is Full: {monster.get_name()} couldn't be added to the team because team is now full")
                 elif monster.can_be_spawned():
-                    self.add_to_team(monster) #add each monster into array (according to team_mode which is builtin to add_to_team)
-                    self.__initial_team(monster)
+                    self.add_to_team(monster()) #add each monster into array (according to team_mode which is builtin to add_to_team)
+                    self.__initial_team(monster())
         else: #if length of monsters provided were bigger than 6 or less than 1 then Exception
-            raise ValueError('Either you have too many monsters - you can only have a max of 6 in a team or,\nYou have no monsters or,\n team is full')
+            raise Exception('Either you have too many monsters - you can only have a max of 6 in a team or,\nYou have no monsters or,\n team is full')
 
     def choose_action(self, currently_out: MonsterBase, enemy: MonsterBase) -> Battle.Action:
         # This is just a placeholder function that doesn't matter much for testing.
