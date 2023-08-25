@@ -62,6 +62,8 @@ class EffectivenessCalculator:
 
     def __init__(self, element_names: ArrayR[str], effectiveness_values: ArrayR[float]) -> None:
         """
+
+        :complexity: O(1)
         Initialise the Effectiveness Calculator.
 
         The first parameter is an ArrayR of size n containing all element_names.
@@ -83,13 +85,13 @@ class EffectivenessCalculator:
         self.elements = element_names
         self.effectiveness = effectiveness_values
 
-        
-
-        
-
     @classmethod
     def get_effectiveness(cls, type1: Element, type2: Element) -> float:
         """
+        :complexity: O(n) -> n = length of elements array 
+        :type1: Element of monster attacking
+        :type2: Element of monster attacked
+
         Returns the effectiveness of elem1 attacking elem2.
 
         Example: EffectivenessCalculator.get_effectiveness(Element.FIRE, Element.WATER) == 0.5
@@ -100,12 +102,12 @@ class EffectivenessCalculator:
 
         type1 = type1.name.lower() #turn first element string to lower case
         type2 = type2.name.lower() #turn second element string to lower case
-        elements_lowercase_array = [elem.lower() for elem in elements] #Create array of element headers all in lowercase
+        elements_lowercase_array = ArrayR.from_list([elem.lower() for elem in elements]) # O(n)Create array of element headers all in lowercase
 
-        if type1 in elements_lowercase_array: #check if the first element exists in the new lowercase array ex. water == water? 
+        if type1 in elements_lowercase_array: #O(n) check if the first element exists in the new lowercase array ex. water == water? 
                 index_type1 = elements_lowercase_array.index(type1) #get index value of the first element
 
-                if type2 in elements_lowercase_array: #check if the second element exists in the new lowercase array ex. water == water?
+                if type2 in elements_lowercase_array: #O(n) check if the second element exists in the new lowercase array ex. water == water?
                     index_type2 = elements_lowercase_array.index(type2) #get index value of the second element
 
         else: #raise Exception if first element or second element is not found
