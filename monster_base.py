@@ -1,5 +1,7 @@
 from __future__ import annotations
 import abc
+import math
+from elements import Element, EffectivenessCalculator
 
 from stats import Stats
 ''' This is how to commment everything
@@ -93,13 +95,33 @@ class MonsterBase(abc.ABC):
         
 
     def attack(self, other: MonsterBase):
-        """Attack another monster instance"""
+        '''Attack another monster instance
+        
+        :param other: The monster being attacked
+        '''
         # Step 1: Compute attack stat vs. defense stat
         # Step 2: Apply type effectiveness
         # Step 3: Ceil to int
         # Step 4: Lose HP
 
-        raise NotImplementedError
+        if self.get_attack()/2 > other.get_defense(): #if half your monsters attack is bigger than other monsters defense whole defense
+            damage =  self.get_attack() - other.get_defense() #Your attack dmg - their defense 
+
+        elif self.get_attack() > other.get_defense(): # if your attack is bigger than the other monsters defence 
+            damage =  5/8*self.get_attack() - other.get_defense()/4  #lessen your attack by 5/8 and mminus a quarter of their defense
+
+        else: # i.e your attack is less than defense 
+            damage = self.get_attack()/4 #quarter of your attack dmg
+
+
+        your_element = Element.from_string(self.get_element()) # get your element
+        otherMonster_element = Element.from_string(other.get_element()) # get other monsters element
+
+        effectiveness_value = EffectivenessCalculator.get_effectiveness(your_element, otherMonster_element) #get the effectiveness factor
+
+        eff_dmg = effectiveness_value * damage #multiple it by the damage to get the actual damage (i.e the effective damage)
+        other.set_hp(other.get_hp() - math.ceil(eff_dmg)) #apply the damage the other monsters health (i.e set the others monster hp)
+
 
     def ready_to_evolve(self) -> bool:
         """Whether this monster is ready to evolve. See assignment spec for specific logic."""
