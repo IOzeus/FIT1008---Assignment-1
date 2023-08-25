@@ -1,5 +1,7 @@
 from __future__ import annotations
 import abc
+import math
+from elements import Element, EffectivenessCalculator
 
 from stats import Stats
 ''' This is how to commment everything
@@ -15,11 +17,8 @@ class MonsterBase(abc.ABC):
 
         :simple_mode: Whether to use the simple or complex stats of this monster
         :level: The starting level of this monster. Defaults to 1.
-        :self.max_hp: Max hp of monster (retrived from stats.py)
         """
-
-        #Stats of monster retrieved from stats.py
-        stats = self.get_simple_stats() #just naming a variable i.e self.stats to equal the function get_simple_stats() (which gets all the stats somehow from the stats file) so that I can access this function easier just by writing stats.whatever
+        stats = self.get_simple_stats() 
         self.__max_hp = stats.get_max_hp()
         self.__defense = stats.get_defense()
         self.__dmg = stats.get_attack()
@@ -39,9 +38,6 @@ class MonsterBase(abc.ABC):
 
     def level_up(self):
         """Increase the level of this monster instance by 1"""
-        # if other monsters hp<=0 (hp is less than or equal to 0) i.e the variable 'other' obj hp stat is hp<=0 
-        # then if this is the case level up (update current_level using current_level+=current_level)
-        #return current_level
         old_max_hp = self.get_max_hp()
         self.__current_level += 1
         self.set_hp( self.get_max_hp() - (old_max_hp - self.get_hp()) )
@@ -53,8 +49,6 @@ class MonsterBase(abc.ABC):
         
     def set_hp(self, val):
         """Set the current HP of this monster instance"""
-        if val < 0:
-            raise ValueError("HP cannot be negative")
 
         if val > self.__max_hp: 
             hp_increase = val - self.__max_hp
@@ -93,13 +87,32 @@ class MonsterBase(abc.ABC):
         
 
     def attack(self, other: MonsterBase):
-        """Attack another monster instance"""
+        '''Attack another monster instance
+        :param other: The monster being attacked
+        '''
         # Step 1: Compute attack stat vs. defense stat
         # Step 2: Apply type effectiveness
         # Step 3: Ceil to int
         # Step 4: Lose HP
 
-        raise NotImplementedError
+        if self.get_attack()/2 > other.get_defense(): #if half your monsters attack is bigger than other monsters defense whole defense
+            damage =  self.get_attack() - other.get_defense() #Your attack dmg - their defense 
+
+        elif self.get_attack() > other.get_defense(): # if your attack is bigger than the other monsters defence 
+            damage =  5/8*self.get_attack() - other.get_defense()/4  #lessen your attack by 5/8 and mminus a quarter of their defense
+
+        else: # i.e your attack is less than defense 
+            damage = self.get_attack()/4 #quarter of your attack dmg
+
+
+        your_element = Element.from_string(self.get_element()) # get your element
+        otherMonster_element = Element.from_string(other.get_element()) # get other monsters element
+
+        effectiveness_value = EffectivenessCalculator.get_effectiveness(your_element, otherMonster_element) #get the effectiveness factor
+
+        eff_dmg = effectiveness_value * damage #multiple it by the damage to get the actual damage (i.e the effective damage)
+        other.set_hp(other.get_hp() - math.ceil(eff_dmg)) #apply the damage the other monsters health (i.e set the others monster hp)
+
 
     def ready_to_evolve(self) -> bool:
         """Whether this monster is ready to evolve. See assignment spec for specific logic."""
@@ -118,11 +131,9 @@ class MonsterBase(abc.ABC):
         """Evolve this monster instance by returning a new instance of a monster class."""
         
         if (self.ready_to_evolve()):
-            #if (self.__current_level > self.__init_level):
             evolved_cls = self.get_evolution()
             evolved_monster_obj = evolved_cls.__new__(evolved_cls)
             evolved_monster_obj.__init__(True,self.__current_level)
-            #val = evolved_monster_obj.__max_hp - self.__max_hp
              
             hp_increase = evolved_monster_obj.get_max_hp() - self.__max_hp
             new_current_hp = self.__current_hp + hp_increase
