@@ -191,38 +191,38 @@ class TestTeam(TestCase):
     @number("3.4")
     @visibility(visibility.VISIBILITY_SHOW)
     @timeout()
-    # def test_invalid_provided(self):
-    #     my_monsters = ArrayR(7)
-    #     my_monsters[0] = Flamikin
-    #     my_monsters[1] = Aquariuma
-    #     my_monsters[2] = Rockodile
-    #     my_monsters[3] = Thundrake
-    #     my_monsters[4] = Thundrake
-    #     my_monsters[5] = Thundrake
-    #     my_monsters[6] = Thundrake
-    #     # Too many
-    #     self.assertRaises(ValueError, lambda: MonsterTeam(
-    #         team_mode=MonsterTeam.TeamMode.OPTIMISE,
-    #         selection_mode=MonsterTeam.SelectionMode.PROVIDED,
-    #         sort_key=MonsterTeam.SortMode.HP,
-    #         provided_monsters=my_monsters,
-    #     ))
+    def test_invalid_provided(self):
+        my_monsters = ArrayR(7)
+        my_monsters[0] = Flamikin
+        my_monsters[1] = Aquariuma
+        my_monsters[2] = Rockodile
+        my_monsters[3] = Thundrake
+        my_monsters[4] = Thundrake
+        my_monsters[5] = Thundrake
+        my_monsters[6] = Thundrake
+        # Too many
+        self.assertRaises(ValueError, lambda: MonsterTeam(
+            team_mode=MonsterTeam.TeamMode.OPTIMISE,
+            selection_mode=MonsterTeam.SelectionMode.PROVIDED,
+            sort_key=MonsterTeam.SortMode.HP,
+            provided_monsters=my_monsters,
+        ))
 
-    #     my_monsters = ArrayR(2)
-    #     my_monsters[0] = Flamikin
-    #     my_monsters[1] = Normake
-    #     # can_be_spawned is False.
-    #     self.assertRaises(ValueError, lambda: MonsterTeam(
-    #         team_mode=MonsterTeam.TeamMode.OPTIMISE,
-    #         selection_mode=MonsterTeam.SelectionMode.PROVIDED,
-    #         sort_key=MonsterTeam.SortMode.HP,
-    #         provided_monsters=my_monsters,
-    #     ))
+        my_monsters = ArrayR(2)
+        my_monsters[0] = Flamikin
+        my_monsters[1] = Normake
+        # can_be_spawned is False.
+        self.assertRaises(ValueError, lambda: MonsterTeam(
+            team_mode=MonsterTeam.TeamMode.OPTIMISE,
+            selection_mode=MonsterTeam.SelectionMode.PROVIDED,
+            sort_key=MonsterTeam.SortMode.HP,
+            provided_monsters=my_monsters,
+        ))
 
 
-    # @number("3.5")
-    # @visibility(visibility.VISIBILITY_SHOW)
-    # @timeout()
+    @number("3.5")
+    @visibility(visibility.VISIBILITY_SHOW)
+    @timeout()
     def test_random_mode(self):
         RandomGen.set_seed(123456789)
         team = MonsterTeam(
